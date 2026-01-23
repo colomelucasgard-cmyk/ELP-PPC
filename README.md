@@ -9,4 +9,5 @@ Les proies et prédateurs suivent des heuristiques simples :
 Les proies : fuient lorsqu'un prédateur est un voisin (ie une case adjacente)
 Les prédateurs : traquent les proies si ils en voient une à une case adjacente 
 La reproduction : La proie vient de passer de l'état passif à l'état actif, elle mange jusqu'à un seuil de satiété pour redevenir passive. Durant ce temps la, elle a une petite probabilité de se reproduire (une proie peut se reproduire et rester active ou alors ne pas se reproduire en mangeant et redevient passive).
-Les enfants des proies et des prédateurs héritent des gènes de ces derniers avec des mutations aléatoires (mimer la sélection naturelle)
+Les enfants des proies et des prédateurs héritent des gènes de ces derniers avec des mutations aléatoires (mimer la sélection naturelle).
+Les proies et prédateurs ont un age (=itération dans le boucle de vie) qui les fait mourir obligatoirement entre 300 et 500 ans pour éviter les situations de cluster
