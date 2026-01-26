@@ -4,7 +4,7 @@ import random
 import sysv_ipc
 import env as c
 import multiprocessing
-import sys
+
 
 # --- Fonctions Utilitaires ---
 
@@ -23,12 +23,13 @@ def obtenir_voisins(pos):
     return voisins
 
 # --- Fonction Principale du Processus (La Vie de la Proie) ---
-def run_prey(position_depart=None, genes = None):
+def run_predator(position_depart=None, genes = None):
     """
     Fonction qui contient toute la logique de vie.
     - Si position_depart est None : C'est une proie initiale (Socket).
     - Si position_depart est défini : C'est un enfant (Spawn direct).
     """
+    
     my_pos = position_depart
     
     # 1. Connexion au serveur (Seulement si pas de position assignée)
@@ -61,36 +62,35 @@ def run_prey(position_depart=None, genes = None):
     if position_depart is None:
         sem.acquire()
         try:
-            shm.write(bytes([c.PREY]), offset=my_pos)
+            shm.write(bytes([c.PREDATOR]), offset=my_pos)
         finally:
             sem.release()
 
-    print(f"[PROIE {multiprocessing.current_process().pid}] Née en {my_pos}")
+    print(f"[PREDATEUR {multiprocessing.current_process().pid}] Née en {my_pos}")
 
-    if genes is None: #dico pour mimer la selection naturelle
+    if genes is None:
         genes = {
             "seuil_H": 7,
-            "seuil_R": 7,
-            "cout_repro": 4,
-            "seuil_satiete": 12,
+            "seuil_R": 16,
+            "cout_repro": 6,
             "metabolisme": 0.1 # Vitesse à laquelle l'énergie baisse
         }
     
     # On unpack les gènes dans des variables locales pour simplifier l'usage
     seuil_H = genes["seuil_H"]
-    seuil_satiete = genes["seuil_satiete"]
+    #seuil_satiete = genes["seuil_satiete"]
     cout_reproduction = genes["cout_repro"]
     seuil_R = genes["seuil_R"]
     metabolisme = genes["metabolisme"]
-    age = 0
-    age_mort = random.uniform(300,500)
-
-    energie = 5
+    age = 0 
+    age_mort =  random.uniform(40,60)
+    
+    energie = 8
     etat = "PASSIVE"
 
     # --- Fonctions internes pour utiliser les variables locales (shm, my_pos...) ---
     
-    def essayer_deplacement(cible,code_bytes, est_actif): #code_bytes = si la proie est active ou pas
+    def essayer_deplacement(cible):
         nonlocal my_pos, energie 
         # Lecture (attention, sem doit être acquis avant l'appel ou ici)
         # Ici on suppose que l'appelant gère le sémaphore pour optimiser
@@ -98,26 +98,22 @@ def run_prey(position_depart=None, genes = None):
         
         if val == bytes([c.EMPTY]):
             shm.write(bytes([c.EMPTY]), offset=my_pos)
-            shm.write(code_bytes, offset=cible)
+            shm.write(bytes([c.PREDATOR]), offset=cible)
             my_pos = cible
             return True
             
-        elif val == bytes([c.GRASS]):
+        elif val == bytes([c.ACTIVE_PREY]):
             shm.write(bytes([c.EMPTY]), offset=my_pos)
-            shm.write(code_bytes, offset=cible)
+            shm.write(bytes([c.PREDATOR]), offset=cible)
             my_pos = cible
-            
-            if est_actif:
-                energie += 2
-                # L'herbe est digérée (elle disparaît déjà via l'écriture du code proie)
-            else:
-                # L'herbe est piétinée (détruite) mais pas mangée, #pass, sinon return False pour considérer l'herbe comme pas deplacable
-                return False
+            energie += 4
+            print(f"Miam ({my_pos})! Energie: {energie:.1f}")
             return True
+            
+        # Si c'est c.PREY, on ne fait rien (on ne peut pas le manger)
         return False
 
-    def action_tour(code_actuel):
-        code_bytes = bytes([code_actuel]) #crochet pour renvoyer le bon octet
+    def action_tour():
         sem.acquire()
         try:
             # 1. Obtenir les voisins
@@ -125,37 +121,19 @@ def run_prey(position_depart=None, genes = None):
             random.shuffle(voisins)
             
             bouge = False
-
-            est_actif = (etat == "ACTIVE")
             
             if etat == "ACTIVE":
-                # Stratégie : Chercher herbe en priorité
+                # Stratégie : Chercher proie en priorité
                 for v in voisins:
-                    if shm.read(1, offset=v) == bytes([c.GRASS]):
-                        essayer_deplacement(v,code_bytes,est_actif)
+                    if shm.read(1, offset=v) == bytes([c.ACTIVE_PREY]):
+                        essayer_deplacement(v)
                         bouge = True
                         break
-            
-            danger_proche = []
-            safe_cases = []
-            
-            for v in voisins:
-                val = shm.read(1, offset=v)
-                if val == bytes([c.PREDATOR]):
-                    danger_proche.append(v)
-                elif val == bytes([c.EMPTY]) or val == bytes([c.GRASS]):
-                    safe_cases.append(v)
-                    
-            #FUITE
-            if danger_proche and safe_cases:
-                best_escape = safe_cases[0] 
-                essayer_deplacement(best_escape, code_bytes, est_actif)
-                bouge = True
             
             # Si pas bougé (soit PASSIF, soit pas d'herbe trouvée en ACTIF)
             if not bouge and voisins:
                 target = random.choice(voisins)
-                essayer_deplacement(target,code_bytes,est_actif)
+                essayer_deplacement(target)
                 
         finally:
             sem.release()
@@ -163,60 +141,35 @@ def run_prey(position_depart=None, genes = None):
     # 4. Boucle de Vie
     try:
         while True:
-            try:
+            try :
+                age +=1
                 # Métabolisme
-                age += 1
                 energie -= metabolisme
                 time.sleep(random.uniform(0.5, 1.0))
                 
                 # Mort
                 if energie < 0 or age > age_mort:
-                    print(f"[PROIE {my_pos}] Mort de faim...")
+                    print(f"[PREDATEUR {my_pos}] Mort de faim...")
+                    
+                    # NETTOYAGE
                     sem.acquire()
                     try:
-                        #On nettoie la case s'il n'y a que nous dessus
-                        if shm.read(1, offset=my_pos) in [bytes([c.PREY]), bytes([c.ACTIVE_PREY])]:
+                        # On vérifie que c'est bien un predator
+                        if shm.read(1, offset=my_pos) == bytes([c.PREDATOR]):
                             shm.write(bytes([c.EMPTY]), offset=my_pos)
                     finally:
                         sem.release()
+                    
                     break
-                
-                code_actuel = c.PREY
-
+                    
                 # Machine à états
                 if energie < seuil_H:
                     etat = "ACTIVE"
-                    code_actuel = c.ACTIVE_PREY
-                
-                elif etat == "ACTIVE" and energie > seuil_satiete:
-                    etat = "PASSIVE"
-                    code_actuel = c.PREY
-            
-                elif etat == "ACTIVE":
-                    code_actuel = c.ACTIVE_PREY
                 else:
-                    code_actuel = c.PREY
-                
-                sem.acquire() #Si ma position n'est pas moi, alors j'ai été mangé seuil_satiete = 10 
-                try :
-                    val_sur_carte = shm.read(1, offset=my_pos)
+                    etat = "PASSIVE"
                     
-                    # On est vivant peut importe si on est passif ou actif
-                    est_vivant = (val_sur_carte == bytes([c.PREY])) or (val_sur_carte == bytes([c.ACTIVE_PREY]))
-                    
-                    if not est_vivant:
-                        print(f"[PROIE] {my_pos} a été mangée ! ")
-                        sem.release()
-                        sys.exit(0)
-                    
-                    # Mise à jour de l'apparence anti-suicide
-                    if val_sur_carte != bytes([code_actuel]):
-                        shm.write(bytes([code_actuel]), offset=my_pos)
-                finally :
-                    sem.release()
-                
-                #  --- REPRODUCTION ---
-                if energie > seuil_R and random.random() <0.2 :
+                #EPRODUCTION
+                if energie > seuil_R:
                     child_spot = -1
                     
                     sem.acquire() # Section critique pour trouver une place
@@ -228,7 +181,7 @@ def run_prey(position_depart=None, genes = None):
                                 child_spot = v
                                 # IMPORTANT : On RÉSERVE la place pour l'enfant tout de suite
                                 # Sinon un autre processus pourrait prendre la place avant que l'enfant ne démarre
-                                shm.write(bytes([c.PREY]), offset=child_spot)
+                                shm.write(bytes([c.PREDATOR]), offset=child_spot)
                                 break
                     finally:
                         sem.release()
@@ -238,27 +191,24 @@ def run_prey(position_depart=None, genes = None):
                         child_genes = genes.copy()
                         for cle in child_genes :
                             if cle == metabolisme:
-                                child_genes[metabolisme] += random.uniform(-0.01,0.005)
+                                child_genes[metabolisme] += random.uniform(-0.01,0.01)
                             else: 
                                 child_genes[cle] += random.uniform(-0.2, 0.2)
-                        p = multiprocessing.Process(target=run_prey, args=(child_spot,child_genes))
+                        p = multiprocessing.Process(target=run_predator, args=(child_spot,child_genes))
                         p.start()
-                        energie -= cout_reproduction# Coût de reproduction
-                        print(f"💕 Reproduction de {my_pos} vers {child_spot}")
+                        energie -= cout_reproduction # Coût de reproduction
+                        print(f"Reproduction de {my_pos} vers {child_spot}")
 
-                # Action (Déplacement/Manger) -> maintenant, on prend en compte de si la proie est active ou pas
+                # Action (Déplacement/Manger)
                 try:
-                    action_tour(code_actuel)
+                    action_tour()
                 except sysv_ipc.ExistentialError:
                     # Si la mémoire a disparu, env a terminé
                     print(f"[PROIE {multiprocessing.current_process().pid}] Monde détruit. Arrêt.")
                     break # On sort de la boucle proprement
-            
-            except sysv_ipc.ExistentialError:
+            except  sysv_ipc.ExistentialError:
                 break
-    
-    
-    
+
     except KeyboardInterrupt:
         pass
 
@@ -275,8 +225,9 @@ def run_prey(position_depart=None, genes = None):
 
 # --- MAIN ---
 if __name__ == "__main__":
-    # Lancement de la première proie (mode Socket)
-    # Les enfants seront lancés par la fonction run_prey elle-même
-    p = multiprocessing.Process(target=run_prey)
+    # Lancement de la première proie
+    # Les enfants seront lancés par la fonction run_prey
+    p = multiprocessing.Process(target=run_predator)
     p.start()
-    p.join() 
+    p.join() # On attend que le processus initial finisse (ou Ctrl+C)
+
