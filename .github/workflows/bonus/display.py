@@ -1,11 +1,22 @@
 import sysv_ipc
 import sys
 import os
-import env as c #Utile seulement pour les MQ KEY, LIGNES, COLS, à suppr si on veut juste copier les KEYS
+# import env as c  <-- SUPPRIMÉ
 import select
 import time
 import signal
-import subprocess #pour ne pas créer d'interdépendances entre les preys et predators
+import subprocess 
+
+# --- Constantes (copiées de env pour indépendance) ---
+LIGNES = 20
+COLS = 40
+MQ_KEY = 9500
+
+EMPTY = 0
+PREY = 1
+PREDATOR = 2
+GRASS = 3
+ACTIVE_PREY = 4
 
 # --- Fonction de lancement ---
 def lancer_simulation():
@@ -16,7 +27,7 @@ def lancer_simulation():
     try:
         print(f"Lancement de la simulation")
         n_preys = int(input("nombre de proies ?"))
-        n_predators = int(input("nombre de predateurs ?"))
+        n_predators = int(input("nombre de predateurs ?")) # [cite: 2]
 
         print(f"ok, lancement de {n_preys} proies et {n_predators} predateurs")
 
@@ -26,7 +37,8 @@ def lancer_simulation():
         
         for j in range(n_preys):
             subprocess.Popen([sys.executable,"prey.py"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            time.sleep(0.1)
+     
+        time.sleep(0.1) # [cite: 3]
     
     except ValueError:
         print(f"nombres invalides")
@@ -34,19 +46,19 @@ def lancer_simulation():
 PID_ENV = None #Stockage PID de env
 
 #Configuration Visuelle
-CURSOR_HOME = '\033[H' #IA, utile pour le terminal non bloquant 
+CURSOR_HOME = '\033[H' 
 SYMBOLS = {
-    c.EMPTY: " . ",
-    c.PREY: " 🐑",
-    c.PREDATOR: " 🐺",
-    c.GRASS: " 🌿",
-    c.ACTIVE_PREY: " 🐐"
+    EMPTY: " . ",   # c.EMPTY remplacé par EMPTY [cite: 4]
+    PREY: " 🐑",
+    PREDATOR: " 🐺",
+    GRASS: " 🌿",
+    ACTIVE_PREY: " 🐐"
 }
 
 
 # Connexion Queue
 try:
-    mq = sysv_ipc.MessageQueue(c.MQ_KEY)
+    mq = sysv_ipc.MessageQueue(MQ_KEY) # c.MQ_KEY remplacé [cite: 17]
     print("Connecté à la file de messages.")
 
 
@@ -56,21 +68,23 @@ except sysv_ipc.ExistentialError:
 
 # Fonction de dessin (IA)
 def render_grid(grid_bytes):
-    output = "╔" + "═══" * c.COLS + "╗\n"
-    for i in range(c.LIGNES):
+    output = "╔" + "═══" * COLS + "╗\n" # c.COLS remplacé
+    for i in range(LIGNES):
         output += "║"
-        for j in range(c.COLS):
-            idx = i * c.COLS + j
+       
+        for j in range(COLS): # [cite: 5]
+            idx = i * COLS + j
             #gird_bytes = byte pur
             val = grid_bytes[idx]
             output += SYMBOLS.get(val, " ? ")
         output += "║\n"
-    output += "╚" + "═══" * c.COLS + "╝"
+    output += "╚" + "═══" * COLS + "╝"
     
-    nb_prey = grid_bytes.count(bytes([c.PREY]))
-    nb_active_prey = grid_bytes.count((bytes([c.ACTIVE_PREY])))
-    nb_pred = grid_bytes.count(bytes([c.PREDATOR]))
-    output += f"\nReçu via MQ | 🐑 + 🐐 : {nb_prey} + {nb_active_prey} | 🐺: {nb_pred}, activez la secheresse (s+Entrée) ou quittez (q+Entrée) ici "
+    nb_prey = grid_bytes.count(bytes([PREY])) # [cite: 6]
+    nb_active_prey = grid_bytes.count((bytes([ACTIVE_PREY])))
+    nb_pred = grid_bytes.count(bytes([PREDATOR]))
+    # Mise à jour du message d'aide pour inclure Chicxulub (optionnel mais utile)
+    output += f"\nReçu via MQ | 🐑 + 🐐 : {nb_prey} + {nb_active_prey} | 🐺: {nb_pred}, activez la secheresse (s), Chicxulub (c) ou quittez (q) " # [cite: 7]
     return output
 
 if __name__ == "__main__":
@@ -83,45 +97,50 @@ if __name__ == "__main__":
         
         while True:
             # GESTION CLAVIER NON-BLOQUANTE
-            # On demande au système : "Y a-t-il quelque chose sur l'entrée standard (stdin) ?"
-            # Le timeout à 0 signifie "vérifie et rend la main tout de suite"
-            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]: #pareil, pour que ce soit pas bloquant, IA
-                cmd = sys.stdin.readline().strip().lower()
-                
+            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]: 
+                cmd = sys.stdin.readline().strip().lower() # [cite: 8]
+             
                 if cmd == 's':
                     # Envoi de l'ordre à Env (Type 2 pour les commandes)
                     try:
                         os.kill(PID_ENV, signal.SIGUSR1)
-                        print("\nSécheresse basculée !") 
-                    except sysv_ipc.BusyError:
+                        print("\nSécheresse basculée !") # [cite: 10]
+                    except (sysv_ipc.BusyError, ProcessLookupError, TypeError):
                         pass
+                
+                # AJOUT : Commande pour Chicxulub (puisque handler_chicxulub existe dans env)
+                elif cmd == 'c':
+                    try:
+                         os.kill(PID_ENV, signal.SIGUSR2)
+                         print("\nAstéroïde en approche !")
+                    except (sysv_ipc.BusyError, ProcessLookupError, TypeError):
+                        pass
+
                 elif cmd == 'q':
-                    mq.send(b"STOP", type=2)
+                    mq.send(b"STOP", type=2) # [cite: 11]
                     break
             
             try: #on recoit le pid de env
                 msg_pid, t = mq.receive(type=3, block = False)
                 PID_ENV = int(msg_pid.decode())
-            except sysv_ipc.BusyError:
+            except sysv_ipc.BusyError: # [cite: 12]
                 pass
 
             #Reception image (normalement pas bloquante)
             try:
-                # block=False est CRUCIAL ici. 
-                # Si pas de message, ça lève une erreur BusyError au lieu de figer l'écran.
-                message, t = mq.receive(type=1, block=False)
+                message, t = mq.receive(type=1, block=False) # [cite: 14]
                 
                 # Si on a reçu un message, on dessine
                 frame = render_grid(message)
-                sys.stdout.write(CURSOR_HOME + frame) #commande non bloquante générée par IA
-                sys.stdout.flush() #nettoyage du buffer propre
+                sys.stdout.write(CURSOR_HOME + frame) 
+                sys.stdout.flush() # [cite: 15]
                 
             except sysv_ipc.BusyError:
                 # Pas de nouvelle image pour l'instant, on ne fait rien
                 pass
 
             #pause pour protéger cpu (?)
-            time.sleep(0.05)
+            time.sleep(0.05) # [cite: 16]
     except sysv_ipc.ExistentialError:
         print("\n La queue a disparu (env.py s'est arrêté ?)")
     except KeyboardInterrupt:
