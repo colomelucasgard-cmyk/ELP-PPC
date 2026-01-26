@@ -13,6 +13,7 @@ Les enfants des proies et des prédateurs héritent des gènes de ces derniers a
 Les proies et prédateurs ont un age (=itération dans le boucle de vie) qui les fait mourir obligatoirement entre 300 et 500 ans pour éviter les situations de cluster
 
 Déroulé : d'abord, nous avons pensé intuitivement au déplacement des proies (ce qui n'est pas le cas) -> un peu hors sujet car on avait un mutex pour 800 cases
--> recode de babyenv.py d'abord + simple accès dans la logique producer consumer. 
+-> recode de env.py d'abord + simple accès dans la logique producer consumer. 
 -> après, on est revenu à env.py -> logique de distance, pas de listes de pid mais des moutons qui se déplacent pour manger de l'herbe qui pousse sur des cases
 Mutex pour une case : pas opti -> liste de sémaphores avec des modulos -> n sémaphores = n proies qui peuvent manger en même temps. 
+Les codes "bonus" (ceux qui suivent les heuristiques de déplacements, sont placés dans le dossier bonus.
