@@ -9,6 +9,15 @@ Dans le code :
 La principale utilisation de l'IA s'est faite pour le débuggage : rajout de multiples print pour vérifier à quelle instruction le programme n'était pas correct, le rajout des flush pour les print, qui "nettoient" les buffers liés à l'écriture... Nous spécifierons cela pour chaque programme afin de rester le plus exhaustif possible.
 Nous retrouvons aussi l'utilisation de l'IA pour la suggestion d'API à utiliser : sysv_ipc a été une des recommendations de l'IA, nous lui avons demandé, en complément de la documentation, d'illustrer comment fonctionne la mémoire partagée de l'API, l'utilsation de select dans le displaybonus.py pour avoir un terminal non bloquant.
 
-Dans envbonus.py : 
+Dans les code "bonus":
+Dans env.py : 
 Ligne 113 à 123 : utilisation de l'IA pour résoudre le problème de la taille de la mémoire partagée et pour l'ajout de la vérification de la MQ.
+ligne 179 : ajout de sysv_ipc.BusyError comme un except, nous n'étions pas au courant de ce type de gestion d'erreur par sysv_ipc
+
+ligne 196 à 204, dans la boucle : 
+l'IA nous a corrigé sur la pousse de l'herbe avec l'utilsation de random.random() et aussi pour les conversions propres des tableaux de bytes en tableaux de int 
+
+ligne 219 : ajout d'un time.sleep (la plupart des time.sleep ont été ajoutés lors du débbugage)
+
+
 
