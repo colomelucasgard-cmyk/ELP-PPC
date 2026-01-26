@@ -164,43 +164,59 @@ if __name__ == "__main__":
     #Boucle principale
     print("Simulation en cours")
 
+    print("Simulation en cours")
+
     try:
         while True:
             # On lit la mémoire
             # On protège la lecture pour ne pas lire une grille à moitié modifiée
 
-            try: #On ne doit pas envoyer le drought activation par mq, mais j'ai laissé le stop
-                message,t = mq.receive(type = 2, block = False)
-                '''if message == b"DROUGHT":
-                    BoolSecheresse = not BoolSecheresse #Pour basculer et annuler
-                    print(f"Drought activated")'''
+            try: 
+                message,t = mq.receive(type = 2, block = False) # [cite: 30]
                 if message == b"STOP":
                     break
             except sysv_ipc.BusyError:
-            
                 pass
 
             sem.acquire()
-            try:
+            try: 
                 raw_data = shm.read()
 
-                if not TriggerChicxulub:
+                if TriggerChicxulub:
                     grid = bytearray(raw_data)
                     changed = False
+                    # L'astéroïde frappe : On tue tout avec une proba de 50%
+                    for i in range(len(grid)):
+                         if random.random()<0.5:
+                             grid[i] = EMPTY 
+                             changed = True
+                    TriggerChicxulub = not TriggerChicxulub #sinon ça refait le calcul de la boucle indéfiniment
+                    
+                    if changed:
+                        shm.write(grid)
+                        raw_data = bytes(grid) # Mise à jour pour la suite si besoin
+                    
+                    # Note: On ne repasse pas TriggerChicxulub à False ici pour laisser
+                    # l'utilisateur le désactiver ("la poussière retombe") via le signal,
+                    # ou on peut le laisser actif pour empêcher toute vie de reprendre.
                 
+                # --- FIN IMPLEMENTATION ---
 
-                if not BoolSecheresse:
-                    grid = bytearray(raw_data)#conversion du byte array
+                # La logique normale de pousse d'herbe ne s'applique que si pas de sécheresse et si on n'est pas en pleine apocalypse (Chicxulub)
+                elif not BoolSecheresse: 
+                    grid = bytearray(raw_data) #conversion du byte array
                     changed = False #Booléen pour voir si quelque chose a changé
 
                     for i in range(len(grid)):
-                        #index = random.randint(0,LIGNES*COLS-1)#Une case au hasard fera pousser de l'herbe
-                        if grid[i] == EMPTY and random.random() < ProbaHerbe:
+                        # index = random.randint(0,LIGNES*COLS-1)
+                        if grid[i] == EMPTY and random.random() < ProbaHerbe: # [cite: 34]
                             grid[i] = GRASS
                             changed = True
-                    if changed :
+                    
+                    if changed : # [cite: 35]
                         shm.write(grid)
                         raw_data = bytes(grid ) #on reconvertit
+                
                 grid_data = raw_data
             finally:
                 sem.release()
