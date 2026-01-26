@@ -1,4 +1,4 @@
-# ELP-PPC
+# PPC
 1. Strucures utilisés
 Pour les mutexs (les sémpahores initialisées à 1, l'accès à la mémoire partagée -> module sisv_ipc)
 
