@@ -6,7 +6,7 @@ Dans la visulation des diagrammes, nous nous sommes aidés de l'IA qui transform
 Pour la rédaction du README, du compte-rendu en LateX et de cette annexe : pour la mise en page (syntaxe) adaptée aux différents formats et pour s'assurer qu'il n'y a pas de fautes d'orthographe. Le texte sinon est resté inchangé.
 
 Dans le code : 
-La principale utilisation de l'IA s'est faite pour le débuggage : rajout de multiples print pour vérifier à quelle instruction le programme n'était pas correct, le rajout des flush pour les print, qui "nettoient" les buffers liés à l'écriture... Nous spécifierons cela pour chaque programme afin de rester le plus exhaustif possible.
+La principale utilisation de l'IA s'est faite pour le débuggage : rajout de multiples print, de quelques try/except pour mieux encapsuler et vérifier ce que nous faisions, pour vérifier à quelle instruction le programme n'était pas correct,... Nous spécifierons cela pour chaque programme afin de rester le plus exhaustif possible.
 Nous retrouvons aussi l'utilisation de l'IA pour la suggestion d'API à utiliser : sysv_ipc a été une des recommendations de l'IA, nous lui avons demandé, en complément de la documentation, d'illustrer comment fonctionne la mémoire partagée de l'API, l'utilsation de select dans le displaybonus.py pour avoir un terminal non bloquant.
 Indications sur l'utilisation du module struct dans la sharedMemory pour que toutes les données prennent la "même place" (4 octets)
 
