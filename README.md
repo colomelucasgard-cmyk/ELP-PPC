@@ -1,16 +1,21 @@
 # PPC
-1. Strucures utilisés
+1. Structures utilisés
 Pour les mutexs (les sémpahores initialisées à 1, l'accès à la mémoire partagée -> module sisv_ipc)
+Chaque animal est représenté par 8 octets ; 4 octets pour le pid, 4 octets pour son état. La mémoire partagée stocke alors l'animal dans deux cases mémoires. On utilise le module struct pour convertir chaque donné de la simulation en 4 octets pour assurer la compatibilité de la mémoire partagée.
+Les modules os,sys sont utilisés pour les signaux.
+Le module time est utilisé dans l'implémenation des proies, des prédateurs et de env
+Le module select est utilisé dans le display pour gérer le terminal
+
 
 Activer/Désactiver la sécheresse : appuyer s + Entrée sur le display
-Quitter le display : appuyer sur q
+Quitter le display : appuyer sur q = Entrée
 
 Les proies et prédateurs suivent des heuristiques simples : 
 Les proies : fuient lorsqu'un prédateur est un voisin (ie une case adjacente)
 Les prédateurs : traquent les proies si ils en voient une à une case adjacente 
 La reproduction : La proie vient de passer de l'état passif à l'état actif, elle mange jusqu'à un seuil de satiété pour redevenir passive. Durant ce temps la, elle a une petite probabilité de se reproduire (une proie peut se reproduire et rester active ou alors ne pas se reproduire en mangeant et redevient passive).
 Les enfants des proies et des prédateurs héritent des gènes de ces derniers avec des mutations aléatoires (mimer la sélection naturelle).
-Les proies et prédateurs ont un age (=itération dans le boucle de vie) qui les fait mourir obligatoirement entre 300 et 500 ans pour éviter les situations de cluster
+Les proies et prédateurs ont un age (=itération dans le boucle de vie) qui les fait mourir obligatoirement entre 50 et 100 ans pour éviter les situations de surnombre
 
 Déroulé : d'abord, nous avons pensé intuitivement au déplacement des proies (ce qui n'est pas le cas) -> un peu hors sujet car on avait un mutex pour 800 cases
 -> recode de env.py d'abord + simple accès dans la logique producer consumer. 
