@@ -39,7 +39,6 @@ def run_predator(my_slot=None, genes=None):
         genes["seuil_R"]+=random.uniform(0,1)
         genes["cout_repro"]+=random.uniform(0,1)
         genes["metabolisme"]+=random.uniform(-0.02,0.02)
-        genes["cooldown"]+=random.uniform(-2,2)
 
     energie = 8
     etat = "PASSIVE"
@@ -128,3 +127,4 @@ if __name__ == "__main__":
     p.start()
 
     p.join()
+
