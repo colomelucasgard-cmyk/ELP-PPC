@@ -1,12 +1,14 @@
 # PPC
 1. Structures utilisés
-
-Pour les mutexs (les sémpahores initialisées à 1, l'accès à la mémoire partagée -> module sisv_ipc)
-Chaque animal est représenté par 8 octets ; 4 octets pour le pid, 4 octets pour son état. La mémoire partagée stocke alors l'animal dans deux cases mémoires. On utilise le module struct pour convertir chaque donné de la simulation en 4 octets pour assurer la compatibilité de la mémoire partagée.
 Les modules os,sys sont utilisés pour les signaux.
 Le module time est utilisé dans l'implémenation des proies, des prédateurs et de env
 Le module select est utilisé dans le display pour gérer le terminal
+le module struct est requis
+le module sysv_ipc est requis
 
+3. Lancement du code
+Pas d'indication particulière :
+-python3 'code'.py
 
 Activer/Désactiver la sécheresse : appuyer s + Entrée sur le display
 Quitter le display : appuyer sur q = Entrée
