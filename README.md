@@ -7,17 +7,21 @@
 * le module `struct` est requis
 * le module `sysv_ipc` est requis
 
-## 3. Lancement du code
+## 2. Lancement du code
 Pas d'indication particulière, on le lance avec :
 ```bash
 python3 'code'.py
-
-    Activer/Désactiver la sécheresse : appuyer s + Entrée sur le display
-
-    Quitter le display : appuyer sur q = Entrée
+```
 
 Vous pouvez choisir, après avoir lancé env.py de soit :
 
-    Lancer les proies et prédateurs via des terminaux distinctifs
+Lancer les proies et prédateurs via des terminaux distinctifs
 
-    Avoir un nombre défini de proies et de prédateurs lancés via display
+Avoir un nombre défini de proies et de prédateurs lancés via display
+
+## 3. Commande dans le terminal
+
+* Activer/Désactiver la sécheresse : appuyer s + Entrée sur le display
+* Quitter le display : appuyer sur q = Entrée
+
+
