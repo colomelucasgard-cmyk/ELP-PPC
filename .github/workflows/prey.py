@@ -114,7 +114,10 @@ def run_prey(my_slot=None, genes=None):
                     p.start()
                     energie -= genes["cout_repro"]
 
-    except KeyboardInterrupt: pass
+    except KeyboardInterrupt: 
+        pass
+    except sysv_ipc.ExistentialError:
+        pass
     finally:
         try:
             sem.acquire()
@@ -126,7 +129,9 @@ def run_prey(my_slot=None, genes=None):
                 # On remet à (0, 0)
                 shm.write(struct.pack('ii', 0, c.EMPTY), offset=offset_moi)
             sem.release()
-        except: pass
+        except: 
+            pass
+        sys.exit(0)
 
 if __name__ == "__main__":
     p = multiprocessing.Process(target=run_prey)

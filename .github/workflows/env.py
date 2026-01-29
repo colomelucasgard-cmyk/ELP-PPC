@@ -146,10 +146,26 @@ if __name__ == "__main__":
             except sysv_ipc.BusyError: pass
 
             time.sleep(0.1)
-
+    
     except KeyboardInterrupt: pass
     finally:
         try:
+            pop_data = shm.read(CAPACITY * SIZE_ANIMAL, offset=OFFSET_POPULATION)
+            sem.release()            
+            # On parcourt les slots
+            for i in range(CAPACITY):
+                # On extrait les 8 octets du slot i
+                chunk = pop_data[i*SIZE_ANIMAL : (i+1)*SIZE_ANIMAL]
+                pid = struct.unpack('ii', chunk)[0]
+                if pid>0:
+                    try: os.kill(pid,signal.SIGTERM)
+                    except ProcessLookupError:
+                        pass
+                    except Exception as e:
+                        print(f"Erreur kill PID{pid}:{e}")
+        except Exception as e:
+            print(f"Erreur lors du nettoyage des processus : {e}")
+        try:    
             shm.remove()
             sem.remove()
             mq.remove()

@@ -81,7 +81,7 @@ def run_predator(my_slot=None, genes=None):
                     sem.release()
 
             # Reproduction
-            if energie > genes["seuil_R"] and random.random() < 0.01:
+            if energie > genes["seuil_R"] and random.random() < 0.02:
                 child_slot = -1
                 sem.acquire()
                 try:
@@ -103,6 +103,8 @@ def run_predator(my_slot=None, genes=None):
 
     except KeyboardInterrupt:
         pass
+    except sysv_ipc.ExistentialError:
+        pass
     finally:
         try:
             sem.acquire()
@@ -112,7 +114,9 @@ def run_predator(my_slot=None, genes=None):
             if pid_lu == my_pid:
                 shm.write(struct.pack('ii', 0, c.EMPTY), offset=offset_moi)
             sem.release()
-        except: pass
+        except: 
+            pass
+        sys.exit(0)
 
 if __name__ == "__main__":
     p = multiprocessing.Process(target=run_predator)

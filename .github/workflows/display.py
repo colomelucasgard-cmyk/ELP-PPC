@@ -1,3 +1,5 @@
+
+
 import sysv_ipc
 import sys
 import os
@@ -17,6 +19,17 @@ SIZE_ANIMAL = 8
 PID_ENV = None
 CURSOR_HOME = '\033[H'
 
+# --- NOUVEAU : Liste pour suivre les enfants ---
+PROCESSUS_ENFANTS = []
+
+def lancer_processus(script_name):
+    """Lance un script et garde une référence pour pouvoir le tuer"""
+    try:
+        p = subprocess.Popen([sys.executable, script_name])
+        PROCESSUS_ENFANTS.append(p)
+    except Exception as e:
+        print(f"Erreur lancement {script_name}: {e}")
+
 def lancer_simulation():
     if not os.path.exists("prey.py") or not os.path.exists("predator.py"):
         print("Fichiers introuvables.")
@@ -26,12 +39,23 @@ def lancer_simulation():
         n_predators = int(input("Prédateurs ? (5): ") or 5)
         
         for _ in range(n_predators):
-            subprocess.Popen([sys.executable, "predator.py"])
+            lancer_processus("predator.py")
             time.sleep(0.05)
         for _ in range(n_preys):
-            subprocess.Popen([sys.executable, "prey.py"])
+            lancer_processus("prey.py")
             time.sleep(0.05)
     except: pass
+
+def fermeture_propre():
+    """Tue tous les processus enfants avant de quitter"""
+    print("\n[DISPLAY] Fermeture des animaux...")
+    for p in PROCESSUS_ENFANTS:
+        try:
+            p.terminate() # On demande gentiment
+            # p.kill()    # Si tu veux être plus brutal
+        except:
+            pass
+    print("[DISPLAY] Terminé.")
 
 def render_dashboard(data_bytes):
     # Header Herbe
@@ -106,4 +130,8 @@ if __name__ == "__main__":
 
             time.sleep(0.1)
 
-    except KeyboardInterrupt: pass
+    except KeyboardInterrupt: 
+        pass
+    finally:
+        fermeture_propre()
+        os.system('clear')
