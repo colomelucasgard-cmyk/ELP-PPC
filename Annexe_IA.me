@@ -21,27 +21,8 @@ Dans predator.py : débuggage sur le module struct qui nous a aidé à gérer le
 Ligne 106 à 115 qui fait nettoyer la propre case du prédateur une fois mort
 ligne 94 : l'IA nous a proposé la solution de mettre le PID du nouveau né temporairement à -1 pour éviter les vols de case 
 
-Dans prey.py : le code est très similaire à predator.py, c'est un "copier-coller" que l'on a adapté pour les proies, donc les aides générées par IA sont les mêmes que pour celle de predator
-
-Dans les code "bonus":
-Dans env.py : 
-Ligne 113 à 123 : utilisation de l'IA pour résoudre le problème de la taille de la mémoire partagée et pour l'ajout de la vérification de la MQ.
-ligne 179 : ajout de sysv_ipc.BusyError comme un except, nous n'étions pas au courant de ce type de gestion d'erreur par sysv_ipc
-
-ligne 196 à 204, dans la boucle : 
-l'IA nous a corrigé sur la pousse de l'herbe avec l'utilsation de random.random() et aussi pour les conversions propres des tableaux de bytes en tableaux de int 
-
-ligne 219 : ajout d'un time.sleep (la plupart des time.sleep ont été ajoutés lors du débbugage)
-
-Dans prey : 
-
-ligne 11 à 23 : 
-L'IA a généré la plupart des fonctions mathématiques (avoir la droite,gauche,haut,bas dans un tableau linéaire).
-
-ligne 75 : idée de l'IA d'ajouter un seuil de satiété pour que la proie reste en état passif plus longtemps.
-
-lgine 139 et 140 : l'IA nous a donné l'idée de générer les petits tableax danger_proche et safe_cases pour l'heuristique de fuite
-
-ligne 178-179 : ajout de l'IA pour que la proie nettoie bien sa case lorsqu'elle meurt
-
-ligne 213-214 : ajout de l'IA pour vérifier que les proies aient bien la bonne position
+Dans display.py : 
+ligne 18 : rajout de CURSOR_HOME qui place le curseur de la souris en haut à gauche
+ligne 20 à 35 : rajout des 'or 20', 'or 5' au cas ou on ne rentre rien quand on nous demande le nombre de proies et prédateurs que l'on veut
+lgine 60 75 : affichage fait entièrement par IA afin de rendre ça un peu joli sans interface graphique
+ligne 89-90 : rajout de ces lignes de l'IA pour ne pas avoir de terminal bloquant
