@@ -38,6 +38,10 @@ def run_prey(my_slot=None, genes=None):
 
     if genes is None:
         genes = {"seuil_H": 7, "seuil_R": 10, "cout_repro": 4, "metabolisme": 0.2}
+        genes["seuil_H"]+=random.uniform(-0.5,0.5)
+        genes["seuil_R"]+=random.uniform(0,1)
+        genes["cout_repro"]+=random.uniform(0,1)
+        genes["metabolisme"]+=random.uniform(-0.02,0.02)
     
     energie = 5
     age = 0
@@ -136,4 +140,5 @@ def run_prey(my_slot=None, genes=None):
 if __name__ == "__main__":
     p = multiprocessing.Process(target=run_prey)
     p.start()
+
     p.join()
