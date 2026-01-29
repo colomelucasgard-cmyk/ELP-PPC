@@ -7,8 +7,8 @@ Pour la rédaction du README, du compte-rendu en LateX et de cette annexe : pour
 
 Dans le code : 
 La principale utilisation de l'IA s'est faite pour le débuggage : rajout de multiples print, de quelques try/except pour mieux encapsuler et vérifier ce que nous faisions, pour vérifier à quelle instruction le programme n'était pas correct,... Nous spécifierons cela pour chaque programme afin de rester le plus exhaustif possible.
-Nous retrouvons aussi l'utilisation de l'IA pour la suggestion d'API à utiliser : sysv_ipc a été une des recommendations de l'IA, nous lui avons demandé, en complément de la documentation, d'illustrer comment fonctionne la mémoire partagée de l'API, l'utilsation de select dans le displaybonus.py pour avoir un terminal non bloquant.
-Indications sur l'utilisation du module struct dans la sharedMemory pour que toutes les données prennent la "même place" (4 octets)
+Nous retrouvons aussi l'utilisation de l'IA pour la suggestion d'API à utiliser : sysv_ipc a été une des recommendations de l'IA, nous lui avons demandé, en complément de la documentation, d'illustrer comment fonctionne la mémoire partagée de l'API, l'utilsation de select dans le display.py pour avoir un terminal non bloquant.
+Indications sur l'utilisation du module struct dans la sharedMemory pour que toutes les données prennent la "même place" (c-à-d 4 octets)
 
 env.py : 
 utilisation surtout pour le débuggage lié à l'utilisation des sockets
