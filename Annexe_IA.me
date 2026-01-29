@@ -17,12 +17,11 @@ l'IA générative nous a donné l'idée d'emploi du module struct, notamment pou
 ligne 112 : utilisation de client.sendall au lieu de client.send grâce à l'IA
 ligne 144 : conversion en octet de notre if BoolSecheresse else et du header
 
-Dans predator.py : débuggage sur le module struct qui nous a aidé à gérer les conversions en bytes proprement
+Dans predator.py et prey.py : débuggage sur le module struct qui nous a aidé à gérer les conversions en bytes proprement
 Ligne 106 à 115 qui fait nettoyer la propre case du prédateur une fois mort
 ligne 94 : l'IA nous a proposé la solution de mettre le PID du nouveau né temporairement à -1 pour éviter les vols de case 
 
 Dans display.py : 
 ligne 18 : rajout de CURSOR_HOME qui place le curseur de la souris en haut à gauche
-ligne 20 à 35 : rajout des 'or 20', 'or 5' au cas ou on ne rentre rien quand on nous demande le nombre de proies et prédateurs que l'on veut
-lgine 60 75 : affichage fait entièrement par IA afin de rendre ça un peu joli sans interface graphique
-ligne 89-90 : rajout de ces lignes de l'IA pour ne pas avoir de terminal bloquant
+ligne 35-36 : rajout des 'or 20', 'or 5' au cas ou on ne rentre rien quand on nous demande le nombre de proies et prédateurs que l'on veut
+ligne 80-95 : affichage fait entièrement par IA afin de rendre ça un peu joli sans interface graphique
