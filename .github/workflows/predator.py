@@ -35,6 +35,11 @@ def run_predator(my_slot=None, genes=None):
 
     if genes is None:
         genes = {"seuil_H": 7, "seuil_R": 11, "cout_repro": 6, "metabolisme": 0.15}
+        genes["seuil_H"]+=random.uniform(-0.5,0.5)
+        genes["seuil_R"]+=random.uniform(0,1)
+        genes["cout_repro"]+=random.uniform(0,1)
+        genes["metabolisme"]+=random.uniform(-0.02,0.02)
+        genes["cooldown"]+=random.uniform(-2,2)
 
     energie = 8
     etat = "PASSIVE"
@@ -121,4 +126,5 @@ def run_predator(my_slot=None, genes=None):
 if __name__ == "__main__":
     p = multiprocessing.Process(target=run_predator)
     p.start()
+
     p.join()
