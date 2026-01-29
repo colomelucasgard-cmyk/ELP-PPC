@@ -8,7 +8,7 @@
 * le module `sysv_ipc` est requis
 
 ## 3. Lancement du code
-Pas d'indication particulière :
+Pas d'indication particulière, on le lance avec :
 ```bash
 python3 'code'.py
 
@@ -16,7 +16,7 @@ python3 'code'.py
 
     Quitter le display : appuyer sur q = Entrée
 
-Vous pouvez choisir, après avoir lancé env.py de soi :
+Vous pouvez choisir, après avoir lancé env.py de soit :
 
     Lancer les proies et prédateurs via des terminaux distinctifs
 
